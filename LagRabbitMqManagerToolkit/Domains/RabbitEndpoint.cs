@@ -1,4 +1,4 @@
-﻿namespace LagRabbitMqManagerToolkit.Requests
+﻿namespace LagRabbitMqManagerToolkit.Domains
 {
     public static class RabbitEndpoints
     {

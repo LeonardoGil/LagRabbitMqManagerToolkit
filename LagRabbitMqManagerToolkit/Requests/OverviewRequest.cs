@@ -1,19 +1,20 @@
 ﻿using LagRabbitMqManagerToolkit.Domains;
+using LagRabbitMqManagerToolkit.Extensions;
 using LagRabbitMqManagerToolkit.Requests.Interfaces;
 
 namespace LagRabbitMqManagerToolkit.Requests
 {
-    internal class OverviewRequest(RabbitRequest _request) : IOverviewRequest
+    internal class OverviewRequest(RabbitSettings _setting) : IOverviewRequest
     {
-        public async Task Get(RabbitSettings setting)
+        public async Task GetAsync()
         {
-            var baseUrl = new Uri(setting.Url);
+            var baseUrl = new Uri(_setting.Url);
 
             var url = new Uri(baseUrl, RabbitEndpoints.Overview);
 
-            var token = _request.BasicToken(setting.Username, setting.Password);
+            var token = RabbitRequestExtensions.BasicToken(_setting);
 
-            await _request.Get<object>(url, token);
+            await RabbitRequestExtensions.Get<object>(url, token);
         }
     }
 }

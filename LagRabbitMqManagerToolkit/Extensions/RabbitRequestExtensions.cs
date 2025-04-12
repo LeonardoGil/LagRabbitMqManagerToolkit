@@ -1,16 +1,15 @@
 ﻿using LagRabbitMqManagerToolkit.Domains;
-using LagRabbitMqManagerToolkit.Requests.Interfaces;
 using Newtonsoft.Json;
 using System.Net.Http.Headers;
 using System.Text;
 
-namespace LagRabbitMqManagerToolkit.Requests
+namespace LagRabbitMqManagerToolkit.Extensions
 {
-    internal class RabbitRequest : IRabbitRequest
+    public static class RabbitRequestExtensions
     {
         private static HttpClient _httpClient = new();
 
-        public async Task<T?> Get<T>(Uri url, string token) where T : class
+        public static async Task<T?> Get<T>(Uri url, string token) where T : class
         {
             var httpRequest = new HttpRequestMessage
             {
@@ -30,7 +29,7 @@ namespace LagRabbitMqManagerToolkit.Requests
             return JsonConvert.DeserializeObject<T>(result);
         }
 
-        public async Task<T?> Post<T>(Uri url, string token, object body) where T : class
+        public static async Task<T?> Post<T>(Uri url, string token, object body) where T : class
         {
             var httpRequest = new HttpRequestMessage
             {
@@ -54,7 +53,7 @@ namespace LagRabbitMqManagerToolkit.Requests
             return JsonConvert.DeserializeObject<T>(result);
         }
 
-        public string BasicToken(RabbitSettings settings) => BasicToken(settings.Username, settings.Password);
-        public string BasicToken(string user, string password) => Convert.ToBase64String(Encoding.UTF8.GetBytes($"{user}:{password}"));
+        public static string BasicToken(RabbitSettings settings) => BasicToken(settings.Username, settings.Password);
+        public static string BasicToken(string user, string password) => Convert.ToBase64String(Encoding.UTF8.GetBytes($"{user}:{password}"));
     }
 }

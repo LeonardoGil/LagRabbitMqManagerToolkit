@@ -1,9 +1,10 @@
 ﻿using LagRabbitMqManagerToolkit.Domains;
+using LagRabbitMqManagerToolkit.Extensions;
 using LagRabbitMqManagerToolkit.Requests.Interfaces;
 
 namespace LagRabbitMqManagerToolkit.Requests
 {
-    internal class QueueRequest(RabbitSettings _settings, RabbitRequest _request) : IQueueRequest
+    internal class QueueRequest(RabbitSettings _settings) : IQueueRequest
     {
         public async Task<Queue?> GetAsync(string vHost, string queue)
         {
@@ -11,9 +12,9 @@ namespace LagRabbitMqManagerToolkit.Requests
             
             var url = new Uri(new Uri(_settings.Url), endpoint);
 
-            var token = _request.BasicToken(_settings);
+            var token = RabbitRequestExtensions.BasicToken(_settings);
             
-            return await _request.Get<Queue>(url, token);
+            return await RabbitRequestExtensions.Get<Queue>(url, token);
         }
     }
 }

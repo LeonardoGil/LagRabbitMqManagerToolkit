@@ -1,9 +1,7 @@
-﻿using LagRabbitMqManagerToolkit.Domains;
-
-namespace LagRabbitMqManagerToolkit.Requests.Interfaces
+﻿namespace LagRabbitMqManagerToolkit.Requests.Interfaces
 {
     public interface IOverviewRequest
     {
-        Task Get(RabbitSettings setting);
+        Task GetAsync();
     }
 }
