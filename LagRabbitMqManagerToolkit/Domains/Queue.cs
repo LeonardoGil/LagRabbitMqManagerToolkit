@@ -2,7 +2,7 @@
 
 namespace LagRabbitMqManagerToolkit.Domains;
 
-public class QueueDto
+public class Queue
 {
     [JsonProperty("arguments")]
     public object Arguments { get; set; }
