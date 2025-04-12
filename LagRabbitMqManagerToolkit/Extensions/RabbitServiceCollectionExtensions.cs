@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace LagRabbitMqManagerToolkit.Extensions
 {
-    public static class LagRabbitServiceCollectionExtensions
+    public static class RabbitServiceCollectionExtensions
     {
         public static IServiceCollection AddLagRabbitMqManagerToolkit(this IServiceCollection services, RabbitSettings settings)
         {
@@ -14,7 +14,7 @@ namespace LagRabbitMqManagerToolkit.Extensions
             services.AddScoped((provider) => settings);
             
             services.AddScoped<IQueueRequest, QueueRequest>();
-            services.AddScoped<IRabbitRequest, RabbitRequest>();
+            services.AddScoped<IOverviewRequest, OverviewRequest>();
             
             return services;
         }
