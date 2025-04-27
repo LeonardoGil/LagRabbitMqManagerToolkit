@@ -10,6 +10,6 @@ namespace LagRabbitMqManagerToolkit.Requests.Interfaces
 
         Task<IList<Message>> GetMessagesAsync(string vHost, string queue, int take = 200);
 
-        Task PublishAsync(string vHost, string queue, Dictionary<string, string> properties, string payload, string encoding = "string");
+        Task PublishAsync(string vHost, string queue, Dictionary<string, string> properties, string payload, string exchange = "amq.default", string encoding = "string");
     }
 }

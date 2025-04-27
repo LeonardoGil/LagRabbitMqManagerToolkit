@@ -52,9 +52,9 @@ namespace LagRabbitMqManagerToolkit.Requests
             return await RabbitRequestExtensions.Get<List<Queue>>(url, token) ?? [];
         }
 
-        public async Task PublishAsync(string vHost, string queue, Dictionary<string, string> properties, string payload, string encoding = "UTF-8")
+        public async Task PublishAsync(string vHost, string queue, Dictionary<string, string> properties, string payload, string exchange = "amq.default", string encoding = "UTF-8")
         {
-            var endpoint = RabbitEndpoints.PublishMessage(vHost, "amq.default");
+            var endpoint = RabbitEndpoints.PublishMessage(vHost, exchange);
 
             var url = new Uri(new Uri(_settings.Url), endpoint);
 
