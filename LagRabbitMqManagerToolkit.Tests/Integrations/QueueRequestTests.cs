@@ -23,5 +23,18 @@ namespace LagRabbitMqManagerToolkit.Tests.Integrations
 
             Assert.NotNull(queue);
         }
+
+        [Fact]
+        public async Task PublishAsync()
+        {
+            var properties = new Dictionary<string, string>()
+            {
+                { "message_id", Guid.NewGuid().ToString() }
+            };
+
+            var payload = "<teste></teste>";
+
+            await _queueRequest.PublishAsync("/", "arrobateste", properties, payload);
+        }
     }
 }
