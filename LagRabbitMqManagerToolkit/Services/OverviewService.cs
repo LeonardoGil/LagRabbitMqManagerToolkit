@@ -1,10 +1,10 @@
 ﻿using LagRabbitMqManagerToolkit.Domains;
 using LagRabbitMqManagerToolkit.Extensions;
-using LagRabbitMqManagerToolkit.Requests.Interfaces;
+using LagRabbitMqManagerToolkit.Services.Interfaces;
 
-namespace LagRabbitMqManagerToolkit.Requests
+namespace LagRabbitMqManagerToolkit.Services
 {
-    internal class OverviewRequest(RabbitSettings _setting) : IOverviewRequest
+    internal class OverviewService(RabbitSettings _setting) : IOverviewService
     {
         public async Task GetAsync()
         {

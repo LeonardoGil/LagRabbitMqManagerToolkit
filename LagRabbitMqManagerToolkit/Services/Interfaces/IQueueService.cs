@@ -1,11 +1,11 @@
-﻿using LagRabbitMqManagerToolkit.Domains;
+﻿using LagRabbitMqManagerToolkit.Requests;
 
-namespace LagRabbitMqManagerToolkit.Requests.Interfaces
+namespace LagRabbitMqManagerToolkit.Services.Interfaces
 {
-    public interface IQueueRequest
+    public interface IQueueService
     {
         Task<IList<Queue>> ListAsync();
-        
+
         Task<Queue?> GetAsync(string vHost, string queue);
 
         Task<IList<Message>> GetMessagesAsync(string vHost, string queue, int take = 200);

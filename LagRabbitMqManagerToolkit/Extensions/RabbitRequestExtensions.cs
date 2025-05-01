@@ -29,6 +29,28 @@ namespace LagRabbitMqManagerToolkit.Extensions
             return JsonConvert.DeserializeObject<T>(result);
         }
 
+        public static async Task Post(Uri url, string token, object body)
+        {
+            var httpRequest = new HttpRequestMessage
+            {
+                RequestUri = url,
+                Method = HttpMethod.Post
+            };
+
+            var bodyJson = JsonConvert.SerializeObject(body);
+
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", token);
+
+            httpRequest.Content = new StringContent(bodyJson, Encoding.UTF8, "application/json");
+
+            var httpResult = await _httpClient.SendAsync(httpRequest);
+
+            var result = await httpResult.Content.ReadAsStringAsync();
+
+            if (!httpResult.IsSuccessStatusCode)
+                throw new Exception(result);
+        }
+
         public static async Task<T?> Post<T>(Uri url, string token, object body) where T : class
         {
             var httpRequest = new HttpRequestMessage
