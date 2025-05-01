@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace LagRabbitMqManagerToolkit.Domains;
+namespace LagRabbitMqManagerToolkit.Requests;
 
 public class Queue
 {

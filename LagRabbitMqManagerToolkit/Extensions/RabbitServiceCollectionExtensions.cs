@@ -1,7 +1,7 @@
 ﻿using LagRabbitMqManagerToolkit.Domains;
-using LagRabbitMqManagerToolkit.Requests.Interfaces;
-using LagRabbitMqManagerToolkit.Requests;
 using Microsoft.Extensions.DependencyInjection;
+using LagRabbitMqManagerToolkit.Services;
+using LagRabbitMqManagerToolkit.Services.Interfaces;
 
 namespace LagRabbitMqManagerToolkit.Extensions
 {
@@ -13,8 +13,8 @@ namespace LagRabbitMqManagerToolkit.Extensions
             
             services.AddScoped((provider) => settings);
             
-            services.AddScoped<IQueueRequest, QueueRequest>();
-            services.AddScoped<IOverviewRequest, OverviewRequest>();
+            services.AddScoped<IQueueService, QueueService>();
+            services.AddScoped<IOverviewService, OverviewService>();
             
             return services;
         }

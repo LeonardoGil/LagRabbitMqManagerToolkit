@@ -1,10 +1,11 @@
 ﻿using LagRabbitMqManagerToolkit.Domains;
 using LagRabbitMqManagerToolkit.Extensions;
-using LagRabbitMqManagerToolkit.Requests.Interfaces;
+using LagRabbitMqManagerToolkit.Requests;
+using LagRabbitMqManagerToolkit.Services.Interfaces;
 
-namespace LagRabbitMqManagerToolkit.Requests
+namespace LagRabbitMqManagerToolkit.Services
 {
-    internal class QueueRequest(RabbitSettings _settings) : IQueueRequest
+    internal class QueueService(RabbitSettings _settings) : IQueueService
     {
         public async Task<Queue?> GetAsync(string vHost, string queue)
         {

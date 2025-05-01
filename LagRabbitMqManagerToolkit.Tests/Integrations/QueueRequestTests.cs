@@ -1,19 +1,19 @@
 ﻿using LagRabbitMqManagerToolkit.Domains;
-using LagRabbitMqManagerToolkit.Requests;
-using LagRabbitMqManagerToolkit.Requests.Interfaces;
+using LagRabbitMqManagerToolkit.Services;
+using LagRabbitMqManagerToolkit.Services.Interfaces;
 using Xunit;
 
 namespace LagRabbitMqManagerToolkit.Tests.Integrations
 {
     public class QueueRequestTests
     {
-        private readonly IQueueRequest _queueRequest;
+        private readonly IQueueService _queueRequest;
 
         public QueueRequestTests()
         {
             var settings = RabbitSettings.Default();
 
-            _queueRequest = new QueueRequest(settings);
+            _queueRequest = new QueueService(settings);
         }
 
         [Fact]
@@ -34,7 +34,7 @@ namespace LagRabbitMqManagerToolkit.Tests.Integrations
 
             var payload = "<teste></teste>";
 
-            await _queueRequest.PublishAsync("/", "arrobateste", properties, payload);
+            await _queueRequest.PublishAsync("/", "teste", properties, payload);
         }
     }
 }

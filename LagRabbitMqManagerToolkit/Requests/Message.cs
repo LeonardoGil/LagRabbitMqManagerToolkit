@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace LagRabbitMqManagerToolkit.Domains;
+namespace LagRabbitMqManagerToolkit.Requests;
 
 public class Message
 {
@@ -8,7 +8,7 @@ public class Message
     public string? Payload { get; set; }
 
     [JsonProperty("payload_encoding")]
-    public string? PayloadEncoding { get; set; } 
+    public string? PayloadEncoding { get; set; }
 
     [JsonProperty("payload_bytes")]
     public int PayloadBytes { get; set; }
