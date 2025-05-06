@@ -4,15 +4,15 @@ using LagRabbitMqManagerToolkit.Services.Interfaces;
 
 namespace LagRabbitMqManagerToolkit.Services
 {
-    internal class OverviewService(RabbitSettings _setting) : IOverviewService
+    internal class OverviewService() : IOverviewService
     {
-        public async Task GetAsync()
+        public async Task GetAsync(RabbitSettings setting)
         {
-            var baseUrl = new Uri(_setting.Url);
+            var baseUrl = new Uri(setting.Url);
 
             var url = new Uri(baseUrl, RabbitEndpoints.Overview);
 
-            var token = RabbitRequestExtensions.BasicToken(_setting);
+            var token = RabbitRequestExtensions.BasicToken(setting);
 
             await RabbitRequestExtensions.Get<object>(url, token);
         }

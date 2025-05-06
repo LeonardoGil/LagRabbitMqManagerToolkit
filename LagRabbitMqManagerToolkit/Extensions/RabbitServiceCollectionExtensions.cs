@@ -14,8 +14,22 @@ namespace LagRabbitMqManagerToolkit.Extensions
             services.AddScoped((provider) => settings);
             
             services.AddScoped<IQueueService, QueueService>();
+            services.AddScoped<IExchangeService, ExchangeService>();
             services.AddScoped<IOverviewService, OverviewService>();
             
+            return services;
+        }
+
+        public static IServiceCollection AddLagRabbitMqManagerToolkit(this IServiceCollection services, Func<IServiceProvider, RabbitSettings> settingsFunc)
+        {
+            ArgumentNullException.ThrowIfNull(settingsFunc);
+
+            services.AddScoped((provider) => settingsFunc.Invoke(provider));
+
+            services.AddScoped<IQueueService, QueueService>();
+            services.AddScoped<IExchangeService, ExchangeService>();
+            services.AddScoped<IOverviewService, OverviewService>();
+
             return services;
         }
     }
