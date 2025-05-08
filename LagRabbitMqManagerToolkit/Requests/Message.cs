@@ -1,4 +1,6 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Text.Json;
 
 namespace LagRabbitMqManagerToolkit.Requests;
 
@@ -50,25 +52,17 @@ public class Properties
     public int DeliveryMode { get; set; }
 
     [JsonProperty("headers")]
-    public Headers Headers { get; set; }
+    public Header? Headers { get; set; }
 
     [JsonProperty("content_type")]
     public string? ContentType { get; set; }
 }
-public class Headers
+
+public class Header
 {
-    [JsonProperty("$.diagnostics.hostdisplayname")]
-    public string? DiagnosticsHostDisplayName { get; set; }
+    [JsonExtensionData]
+    private readonly IDictionary<string, JToken>? _raw = new Dictionary<string, JToken>();
 
-    [JsonProperty("$.diagnostics.hostid")]
-    public string? DiagnosticsHostId { get; set; }
-
-    [JsonProperty("$.diagnostics.originating.hostid")]
-    public string? DiagnosticsOriginatingHostId { get; set; }
-
-    [JsonProperty("TraceId")]
-    public string? TraceId { get; set; }
-
-    [JsonProperty("Tenant")]
-    public string? Tenant { get; set; }
+    [JsonIgnore]
+    public Dictionary<string, string> DynamicHeaders => _raw?.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToString()) ?? [];
 }

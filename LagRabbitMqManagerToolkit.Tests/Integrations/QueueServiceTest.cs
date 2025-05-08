@@ -5,12 +5,12 @@ using Xunit;
 
 namespace LagRabbitMqManagerToolkit.Tests.Integrations
 {
-    public class QueueRequestTests
+    public class QueueServiceTest
     {
         private readonly IQueueService _queueRequest;
         private readonly IExchangeService _exchangeRequest;
 
-        public QueueRequestTests()
+        public QueueServiceTest()
         {
             var settings = RabbitSettings.Default();
 
@@ -19,9 +19,17 @@ namespace LagRabbitMqManagerToolkit.Tests.Integrations
         }
 
         [Fact]
+        public async Task GetMessagesAsync_WithValidQueueName_ReturnsExpectedResultAsync()
+        {
+            var messages = await _queueRequest.GetMessagesAsync("/", "");
+
+            Assert.NotEmpty(messages);
+        }
+
+        [Fact]
         public async Task GetAsync_WithValidQueueName_ReturnsExpectedResultAsync()
         {
-            var queue = await _queueRequest.GetAsync("/", "error");
+            var queue = await _queueRequest.GetAsync("/", "");
 
             Assert.NotNull(queue);
         }
@@ -36,7 +44,7 @@ namespace LagRabbitMqManagerToolkit.Tests.Integrations
 
             var payload = "<teste></teste>";
 
-            await _exchangeRequest.PublishAsync("/", "teste", properties, payload);
+            await _exchangeRequest.PublishAsync("/", "", properties, payload);
         }
     }
 }
