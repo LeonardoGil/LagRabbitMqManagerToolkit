@@ -17,7 +17,7 @@ namespace LagRabbitMqManagerToolkit.Extensions
                 Method = HttpMethod.Get
             };
 
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", token);
+            httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Basic", token);
 
             var httpResult = await _httpClient.SendAsync(httpRequest);
 
@@ -34,14 +34,11 @@ namespace LagRabbitMqManagerToolkit.Extensions
             var httpRequest = new HttpRequestMessage
             {
                 RequestUri = url,
-                Method = HttpMethod.Post
+                Method = HttpMethod.Post,
+                Content = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json")
             };
 
-            var bodyJson = JsonConvert.SerializeObject(body);
-
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", token);
-
-            httpRequest.Content = new StringContent(bodyJson, Encoding.UTF8, "application/json");
+            httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Basic", token);
 
             var httpResult = await _httpClient.SendAsync(httpRequest);
 
@@ -56,14 +53,11 @@ namespace LagRabbitMqManagerToolkit.Extensions
             var httpRequest = new HttpRequestMessage
             {
                 RequestUri = url,
-                Method = HttpMethod.Post
+                Method = HttpMethod.Post,
+                Content = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json")
             };
 
-            var bodyJson = JsonConvert.SerializeObject(body);
-
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", token);
-
-            httpRequest.Content = new StringContent(bodyJson, Encoding.UTF8, "application/json");
+            httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Basic", token);
 
             var httpResult = await _httpClient.SendAsync(httpRequest);
 
