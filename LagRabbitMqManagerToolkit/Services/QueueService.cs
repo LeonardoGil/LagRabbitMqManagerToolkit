@@ -5,7 +5,7 @@ using LagRabbitMqManagerToolkit.Services.Interfaces;
 
 namespace LagRabbitMqManagerToolkit.Services
 {
-    internal class QueueService(RabbitSettings _settings) : IQueueService
+    internal class QueueService(RabbitSettings rabbitSettings) : IQueueService
     {
         public async Task<Queue?> GetAsync(string vHost, string queue)
         {
@@ -14,11 +14,41 @@ namespace LagRabbitMqManagerToolkit.Services
 
             var endpoint = RabbitEndpoints.GetQueue(vHost, queue);
 
-            var url = new Uri(new Uri(_settings.Url), endpoint);
+            var url = new Uri(new Uri(rabbitSettings.Url), endpoint);
 
-            var token = RabbitRequestExtensions.BasicToken(_settings);
+            var token = RabbitRequestExtensions.BasicToken(rabbitSettings);
 
             return await RabbitRequestExtensions.Get<Queue>(url, token);
+        }
+
+        public async Task<RabbitRequestResult<bool>> PutAsync(string vHost, string queue, bool autoDelete = false, bool durable = true)
+        {
+            ArgumentException.ThrowIfNullOrEmpty(vHost);
+            ArgumentException.ThrowIfNullOrEmpty(queue);
+
+            var url = rabbitSettings.Url.CreateUri(RabbitEndpoints.GetQueue(vHost, queue));
+
+            var body = new
+            {
+                auto_delete = autoDelete,
+                
+                durable
+            };
+
+            var response = await RabbitRequestExtensions.Put(rabbitSettings, url, body);
+
+            var content = response.Content.ReadAsStringAsync();
+
+            try
+            {
+                response.EnsureSuccessStatusCode();
+
+                return RabbitRequestResultExtensions.Sucess(true, await content);
+            }
+            catch (HttpRequestException ex)
+            {
+                return RabbitRequestResultExtensions.Fail<bool>(ex, await content);
+            }
         }
 
         public async Task<IList<Message>> GetMessagesAsync(string vHost, string queue, int take = 200)
@@ -28,7 +58,7 @@ namespace LagRabbitMqManagerToolkit.Services
 
             var endpoint = RabbitEndpoints.GetQueueMessages(vHost, queue);
 
-            var url = new Uri(new Uri(_settings.Url), endpoint);
+            var url = new Uri(new Uri(rabbitSettings.Url), endpoint);
 
             var body = new
             {
@@ -37,7 +67,7 @@ namespace LagRabbitMqManagerToolkit.Services
                 count = take
             };
 
-            var token = RabbitRequestExtensions.BasicToken(_settings);
+            var token = RabbitRequestExtensions.BasicToken(rabbitSettings);
 
             return await RabbitRequestExtensions.Post<IList<Message>>(url, token, body) ?? [];
         }
@@ -46,9 +76,9 @@ namespace LagRabbitMqManagerToolkit.Services
         {
             var endpoint = RabbitEndpoints.Queues;
 
-            var url = new Uri(new Uri(_settings.Url), endpoint);
+            var url = new Uri(new Uri(rabbitSettings.Url), endpoint);
 
-            var token = RabbitRequestExtensions.BasicToken(_settings);
+            var token = RabbitRequestExtensions.BasicToken(rabbitSettings);
 
             return await RabbitRequestExtensions.Get<List<Queue>>(url, token) ?? [];
         }

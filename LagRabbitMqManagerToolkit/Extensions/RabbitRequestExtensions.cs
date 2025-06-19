@@ -5,11 +5,11 @@ using System.Text;
 
 namespace LagRabbitMqManagerToolkit.Extensions
 {
-    public static class RabbitRequestExtensions
+    internal static class RabbitRequestExtensions
     {
-        private static HttpClient _httpClient = new();
+        private static readonly HttpClient _httpClient = new();
 
-        public static async Task<T?> Get<T>(Uri url, string token) where T : class
+        internal static async Task<T?> Get<T>(Uri url, string token) where T : class
         {
             var httpRequest = new HttpRequestMessage
             {
@@ -29,7 +29,7 @@ namespace LagRabbitMqManagerToolkit.Extensions
             return JsonConvert.DeserializeObject<T>(result);
         }
 
-        public static async Task Post(Uri url, string token, object body)
+        internal static async Task Post(Uri url, string token, object body)
         {
             var httpRequest = new HttpRequestMessage
             {
@@ -48,7 +48,19 @@ namespace LagRabbitMqManagerToolkit.Extensions
                 throw new Exception(result);
         }
 
-        public static async Task<T?> Post<T>(Uri url, string token, object body) where T : class
+        internal static async Task<HttpResponseMessage> Put(RabbitSettings rabbitSettings, Uri url, object body)
+        {
+            var httpRequest = new HttpRequestMessage
+            {
+                RequestUri = url,
+                Method = HttpMethod.Put,
+                Content = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json")
+            };
+
+            return await Request(httpRequest, rabbitSettings);
+        }
+
+        internal static async Task<T?> Post<T>(Uri url, string token, object body) where T : class
         {
             var httpRequest = new HttpRequestMessage
             {
@@ -69,7 +81,14 @@ namespace LagRabbitMqManagerToolkit.Extensions
             return JsonConvert.DeserializeObject<T>(result);
         }
 
-        public static string BasicToken(RabbitSettings settings) => BasicToken(settings.Username, settings.Password);
-        public static string BasicToken(string user, string password) => Convert.ToBase64String(Encoding.UTF8.GetBytes($"{user}:{password}"));
+        internal static async Task<HttpResponseMessage> Request(HttpRequestMessage httpRequest, RabbitSettings rabbitSettings)
+        {
+            httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Basic", BasicToken(rabbitSettings));
+
+            return await _httpClient.SendAsync(httpRequest);
+        }
+
+        internal static string BasicToken(RabbitSettings settings) => BasicToken(settings.Username, settings.Password);
+        internal static string BasicToken(string user, string password) => Convert.ToBase64String(Encoding.UTF8.GetBytes($"{user}:{password}"));
     }
 }

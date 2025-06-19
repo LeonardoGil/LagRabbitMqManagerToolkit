@@ -9,5 +9,7 @@
         public static string GetQueue(string vhost, string queueName) => $"/api/queues/{Uri.EscapeDataString(vhost)}/{Uri.EscapeDataString(queueName)}";
         public static string GetQueueMessages(string vhost, string queueName) => $"/api/queues/{Uri.EscapeDataString(vhost)}/{Uri.EscapeDataString(queueName)}/get";
         public static string PublishMessage(string vhost, string queueName) => $"/api/exchanges/{Uri.EscapeDataString(vhost)}/{Uri.EscapeDataString(queueName)}/publish";
+
+        internal static Uri CreateUri(this string url, string endpoint) => new(new Uri(url), endpoint);
     }
 }
