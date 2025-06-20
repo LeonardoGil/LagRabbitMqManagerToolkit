@@ -7,7 +7,7 @@ namespace LagRabbitMqManagerToolkit.Services.Interfaces
     {
         Task<IList<Queue>> ListAsync();
 
-        Task<Queue?> GetAsync(string vHost, string queue);
+        Task<RabbitRequestResult<Queue?>> GetAsync(string vHost, string queue);
         
         Task<RabbitRequestResult<bool>> PutAsync(string vHost, string queue, bool autoDelete = false, bool durable = true);  
 

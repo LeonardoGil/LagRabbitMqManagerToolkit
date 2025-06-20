@@ -10,21 +10,20 @@ namespace LagRabbitMqManagerToolkit.Extensions
         public static IServiceCollection AddLagRabbitMqManagerToolkit(this IServiceCollection services, RabbitSettings settings)
         {
             ArgumentNullException.ThrowIfNull(settings);
-            
-            services.AddScoped((provider) => settings);
-            
-            services.AddScoped<IQueueService, QueueService>();
-            services.AddScoped<IExchangeService, ExchangeService>();
-            services.AddScoped<IOverviewService, OverviewService>();
-            
-            return services;
+
+            return services.AddServices(provider => settings);
         }
 
         public static IServiceCollection AddLagRabbitMqManagerToolkit(this IServiceCollection services, Func<IServiceProvider, RabbitSettings> settingsFunc)
         {
             ArgumentNullException.ThrowIfNull(settingsFunc);
 
-            services.AddScoped((provider) => settingsFunc.Invoke(provider));
+            return services.AddServices(settingsFunc.Invoke);
+        }
+
+        private static IServiceCollection AddServices(this IServiceCollection services, Func<IServiceProvider, RabbitSettings> settingsFunc)
+        {
+            services.AddScoped(settingsFunc);
 
             services.AddScoped<IQueueService, QueueService>();
             services.AddScoped<IExchangeService, ExchangeService>();

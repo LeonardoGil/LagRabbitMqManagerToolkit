@@ -1,5 +1,4 @@
 ﻿using LagRabbitMqManagerToolkit.Domains;
-using LagRabbitMqManagerToolkit.Extensions;
 using LagRabbitMqManagerToolkit.Services.Interfaces;
 
 namespace LagRabbitMqManagerToolkit.Services
@@ -12,9 +11,9 @@ namespace LagRabbitMqManagerToolkit.Services
 
             var url = new Uri(baseUrl, RabbitEndpoints.Overview);
 
-            var token = RabbitRequestExtensions.BasicToken(setting);
+            var token = RequestService.BasicToken(setting);
 
-            await RabbitRequestExtensions.Get<object>(url, token);
+            await RequestService.GetAsync<object>(url, token);
         }
     }
 }

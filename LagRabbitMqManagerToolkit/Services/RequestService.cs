@@ -1,15 +1,16 @@
 ﻿using LagRabbitMqManagerToolkit.Domains;
+using LagRabbitMqManagerToolkit.Services.Interfaces;
 using Newtonsoft.Json;
 using System.Net.Http.Headers;
 using System.Text;
 
-namespace LagRabbitMqManagerToolkit.Extensions
+namespace LagRabbitMqManagerToolkit.Services
 {
-    internal static class RabbitRequestExtensions
+    internal class RequestService : IRequestService
     {
-        private static readonly HttpClient _httpClient = new();
+        private readonly HttpClient _httpClient = new();
 
-        internal static async Task<T?> Get<T>(Uri url, string token) where T : class
+        public async Task<HttpResponseMessage> GetAsync(RabbitSettings rabbitSettings, Uri url)
         {
             var httpRequest = new HttpRequestMessage
             {
@@ -17,19 +18,9 @@ namespace LagRabbitMqManagerToolkit.Extensions
                 Method = HttpMethod.Get
             };
 
-            httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Basic", token);
-
-            var httpResult = await _httpClient.SendAsync(httpRequest);
-
-            var result = await httpResult.Content.ReadAsStringAsync();
-
-            if (!httpResult.IsSuccessStatusCode || result is null)
-                throw new Exception(result);
-
-            return JsonConvert.DeserializeObject<T>(result);
+            return await Request(httpRequest, rabbitSettings);
         }
-
-        internal static async Task Post(Uri url, string token, object body)
+        public async Task Post(Uri url, string token, object body)
         {
             var httpRequest = new HttpRequestMessage
             {
@@ -47,8 +38,7 @@ namespace LagRabbitMqManagerToolkit.Extensions
             if (!httpResult.IsSuccessStatusCode)
                 throw new Exception(result);
         }
-
-        internal static async Task<HttpResponseMessage> Put(RabbitSettings rabbitSettings, Uri url, object body)
+        public async Task<HttpResponseMessage> PutAsync(RabbitSettings rabbitSettings, Uri url, object body)
         {
             var httpRequest = new HttpRequestMessage
             {
@@ -59,8 +49,7 @@ namespace LagRabbitMqManagerToolkit.Extensions
 
             return await Request(httpRequest, rabbitSettings);
         }
-
-        internal static async Task<T?> Post<T>(Uri url, string token, object body) where T : class
+        public async Task<T?> Post<T>(Uri url, string token, object body) where T : class
         {
             var httpRequest = new HttpRequestMessage
             {
@@ -81,14 +70,13 @@ namespace LagRabbitMqManagerToolkit.Extensions
             return JsonConvert.DeserializeObject<T>(result);
         }
 
-        internal static async Task<HttpResponseMessage> Request(HttpRequestMessage httpRequest, RabbitSettings rabbitSettings)
+        private static async Task<HttpResponseMessage> Request(HttpRequestMessage httpRequest, RabbitSettings rabbitSettings)
         {
             httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Basic", BasicToken(rabbitSettings));
 
             return await _httpClient.SendAsync(httpRequest);
         }
-
-        internal static string BasicToken(RabbitSettings settings) => BasicToken(settings.Username, settings.Password);
-        internal static string BasicToken(string user, string password) => Convert.ToBase64String(Encoding.UTF8.GetBytes($"{user}:{password}"));
+        private static string BasicToken(RabbitSettings settings) => BasicToken(settings.Username, settings.Password);
+        private static string BasicToken(string user, string password) => Convert.ToBase64String(Encoding.UTF8.GetBytes($"{user}:{password}"));
     }
 }

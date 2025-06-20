@@ -1,7 +1,5 @@
 ﻿using LagRabbitMqManagerToolkit.Domains;
-using LagRabbitMqManagerToolkit.Extensions;
 using LagRabbitMqManagerToolkit.Services.Interfaces;
-using System.Runtime;
 
 namespace LagRabbitMqManagerToolkit.Services
 {
@@ -13,7 +11,7 @@ namespace LagRabbitMqManagerToolkit.Services
 
             var url = new Uri(new Uri(_settings.Url), endpoint);
 
-            var token = RabbitRequestExtensions.BasicToken(_settings);
+            var token = RequestService.BasicToken(_settings);
 
             var body = new
             {
@@ -26,7 +24,7 @@ namespace LagRabbitMqManagerToolkit.Services
                 payload_encoding = encoding
             };
 
-            await RabbitRequestExtensions.Post(url, token, body);
+            await RequestService.Post(url, token, body);
         }
     }
 }
