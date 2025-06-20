@@ -64,14 +64,12 @@ namespace LagRabbitMqManagerToolkit.Services
             }
         }
 
-        public async Task<IList<Message>> GetMessagesAsync(string vHost, string queue, int take = 200)
+        public async Task<RabbitRequestResult<IList<Message>>> GetMessagesAsync(string vHost, string queue, int take = 200)
         {
             ArgumentException.ThrowIfNullOrEmpty(vHost);
             ArgumentException.ThrowIfNullOrEmpty(queue);
 
-            var endpoint = RabbitEndpoints.GetQueueMessages(vHost, queue);
-
-            var url = new Uri(new Uri(rabbitSettings.Url), endpoint);
+            var url = rabbitSettings.Url.CreateUri(RabbitEndpoints.GetQueueMessages(vHost, queue));
 
             var body = new
             {
@@ -80,20 +78,44 @@ namespace LagRabbitMqManagerToolkit.Services
                 count = take
             };
 
-            var token = requestService.BasicToken(rabbitSettings);
+            var response = await requestService.PostAsync(rabbitSettings, url, body);
 
-            return await requestService.Post<IList<Message>>(url, token, body) ?? [];
+            var content = response.Content.ReadAsStringAsync();
+
+            try
+            {
+                response.EnsureSuccessStatusCode();
+
+                var result = JsonConvert.DeserializeObject<IList<Message>>(await content);
+
+                return RabbitRequestResultExtensions.Sucess(result ?? [], await content);
+            }
+            catch (HttpRequestException ex)
+            {
+                return RabbitRequestResultExtensions.Fail<IList<Message>>(ex, await content);
+            }
         }
 
-        public async Task<IList<Queue>> ListAsync()
+        public async Task<RabbitRequestResult<IList<Queue>>> ListAsync()
         {
-            var endpoint = RabbitEndpoints.Queues;
+            var url = rabbitSettings.Url.CreateUri(RabbitEndpoints.Queues);
 
-            var url = new Uri(new Uri(rabbitSettings.Url), endpoint);
+            var response = await requestService.GetAsync(rabbitSettings, url);
 
-            var token = requestService.BasicToken(rabbitSettings);
+            var content = response.Content.ReadAsStringAsync();
 
-            return await requestService.GetAsync<List<Queue>>(url, token) ?? [];
+            try
+            {
+                response.EnsureSuccessStatusCode();
+
+                var result = JsonConvert.DeserializeObject<IList<Queue>>(await content);
+
+                return RabbitRequestResultExtensions.Sucess(result ?? [], await content);
+            }
+            catch (HttpRequestException ex)
+            {
+                return RabbitRequestResultExtensions.Fail<IList<Queue>>(ex, await content);
+            }
         }
     }
 }

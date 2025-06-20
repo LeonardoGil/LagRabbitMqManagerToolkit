@@ -1,19 +1,33 @@
 ﻿using LagRabbitMqManagerToolkit.Domains;
+using LagRabbitMqManagerToolkit.Extensions;
 using LagRabbitMqManagerToolkit.Services.Interfaces;
 
 namespace LagRabbitMqManagerToolkit.Services
 {
-    internal class OverviewService() : IOverviewService
+    internal class OverviewService(IRequestService requestService, RabbitSettings? rabbitSettings = null) : IOverviewService
     {
-        public async Task GetAsync(RabbitSettings setting)
+        public async Task<RabbitRequestResult<bool>> GetAsync(RabbitSettings? setting = null)
         {
-            var baseUrl = new Uri(setting.Url);
+            rabbitSettings ??= setting;
 
-            var url = new Uri(baseUrl, RabbitEndpoints.Overview);
+            ArgumentNullException.ThrowIfNull(rabbitSettings);
 
-            var token = RequestService.BasicToken(setting);
+            var url = rabbitSettings.Url.CreateUri(RabbitEndpoints.Overview);
 
-            await RequestService.GetAsync<object>(url, token);
+            var response = await requestService.GetAsync(rabbitSettings, url);
+
+            var content = await response.Content.ReadAsStringAsync();
+
+            try
+            {
+                response.EnsureSuccessStatusCode();
+
+                return RabbitRequestResultExtensions.Sucess(true, content);
+            }
+            catch (HttpRequestException ex)
+            {
+                return RabbitRequestResultExtensions.Fail<bool>(ex, content);
+            }
         }
     }
 }

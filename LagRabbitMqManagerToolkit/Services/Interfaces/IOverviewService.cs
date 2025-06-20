@@ -4,6 +4,6 @@ namespace LagRabbitMqManagerToolkit.Services.Interfaces
 {
     public interface IOverviewService
     {
-        Task GetAsync(RabbitSettings setting);
+        Task<RabbitRequestResult<bool>> GetAsync(RabbitSettings? setting = null);
     }
 }
