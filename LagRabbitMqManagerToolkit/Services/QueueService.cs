@@ -16,25 +16,10 @@ namespace LagRabbitMqManagerToolkit.Services
 
             var url = rabbitSettings.Url.CreateUri(RabbitEndpoints.GetQueue(vHost, queue));
 
-            var response = await requestService.GetAsync(rabbitSettings, url);
-
-            var content = response.Content.ReadAsStringAsync();
-
-            try
-            {
-                response.EnsureSuccessStatusCode();
-
-                var result = JsonConvert.DeserializeObject<Queue>(await content);
-
-                return RabbitRequestResultExtensions.Sucess(result, await content);
-            }
-            catch (HttpRequestException ex)
-            {
-                return RabbitRequestResultExtensions.Fail<Queue?>(ex, await content);
-            }
+            return await requestService.GetAsync(rabbitSettings, url);
         }
 
-        public async Task<RabbitRequestResult<bool>> PutAsync(string vHost, string queue, bool autoDelete = false, bool durable = true)
+        public async Task<RabbitRequestResult> PutAsync(string vHost, string queue, bool autoDelete = false, bool durable = true)
         {
             ArgumentException.ThrowIfNullOrEmpty(vHost);
             ArgumentException.ThrowIfNullOrEmpty(queue);
@@ -44,24 +29,10 @@ namespace LagRabbitMqManagerToolkit.Services
             var body = new
             {
                 auto_delete = autoDelete,
-                
                 durable
             };
 
-            var response = await requestService.PutAsync(rabbitSettings, url, body);
-
-            var content = response.Content.ReadAsStringAsync();
-
-            try
-            {
-                response.EnsureSuccessStatusCode();
-
-                return RabbitRequestResultExtensions.Sucess(true, await content);
-            }
-            catch (HttpRequestException ex)
-            {
-                return RabbitRequestResultExtensions.Fail<bool>(ex, await content);
-            }
+            return await requestService.PutAsync(rabbitSettings, url, body);
         }
 
         public async Task<RabbitRequestResult<IList<Message>>> GetMessagesAsync(string vHost, string queue, int take = 200)
@@ -78,44 +49,14 @@ namespace LagRabbitMqManagerToolkit.Services
                 count = take
             };
 
-            var response = await requestService.PostAsync(rabbitSettings, url, body);
-
-            var content = response.Content.ReadAsStringAsync();
-
-            try
-            {
-                response.EnsureSuccessStatusCode();
-
-                var result = JsonConvert.DeserializeObject<IList<Message>>(await content);
-
-                return RabbitRequestResultExtensions.Sucess(result ?? [], await content);
-            }
-            catch (HttpRequestException ex)
-            {
-                return RabbitRequestResultExtensions.Fail<IList<Message>>(ex, await content);
-            }
+            return await requestService.PostAsync(rabbitSettings, url, body);
         }
 
         public async Task<RabbitRequestResult<IList<Queue>>> ListAsync()
         {
             var url = rabbitSettings.Url.CreateUri(RabbitEndpoints.Queues);
 
-            var response = await requestService.GetAsync(rabbitSettings, url);
-
-            var content = response.Content.ReadAsStringAsync();
-
-            try
-            {
-                response.EnsureSuccessStatusCode();
-
-                var result = JsonConvert.DeserializeObject<IList<Queue>>(await content);
-
-                return RabbitRequestResultExtensions.Sucess(result ?? [], await content);
-            }
-            catch (HttpRequestException ex)
-            {
-                return RabbitRequestResultExtensions.Fail<IList<Queue>>(ex, await content);
-            }
+            return await requestService.GetAsync(rabbitSettings, url);
         }
     }
 }

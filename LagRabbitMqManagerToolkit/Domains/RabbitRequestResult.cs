@@ -1,27 +1,57 @@
-﻿namespace LagRabbitMqManagerToolkit.Domains
+﻿using Newtonsoft.Json;
+using System.Net;
+
+namespace LagRabbitMqManagerToolkit.Domains
 {
+    public readonly struct RabbitRequestResult
+    {
+        public RabbitRequestResult(HttpResponseMessage httpResponse)
+        {
+            HttpStatusCode = httpResponse.StatusCode;
+            IsSucess = httpResponse.IsSuccessStatusCode;
+
+            try
+            {
+                httpResponse.EnsureSuccessStatusCode();
+            }
+            catch (Exception ex)
+            {
+                Exception = ex;
+            }
+        }
+
+        public readonly bool IsSucess;
+        public readonly HttpStatusCode HttpStatusCode;
+        public readonly Exception? Exception;
+
+        public static implicit operator RabbitRequestResult(HttpResponseMessage httpResponse) => new(httpResponse);
+    }
+
     public readonly struct RabbitRequestResult<T>
     {
-        public RabbitRequestResult(T result, string? content = null)
+        public RabbitRequestResult(HttpResponseMessage httpResponse)
         {
-            Result = result;
-            IsSucess = true;
-            Content = content ?? string.Empty;
+            HttpStatusCode = httpResponse.StatusCode;
+            IsSucess = httpResponse.IsSuccessStatusCode;
+
+            var content = httpResponse.Content.ReadAsStringAsync().Result;
+
+            try
+            {
+                httpResponse.EnsureSuccessStatusCode();
+                Result = JsonConvert.DeserializeObject<T>(content);
+            }
+            catch (Exception ex)
+            {
+                Exception = ex;
+            }
         }
 
-        public RabbitRequestResult(Exception exception, string? content = null)
-        {
-            Exception = exception;
-            IsSucess = false;
-            Content = content ?? string.Empty;
-        }
-
-        public readonly string Content;
         public readonly T? Result;
-        public readonly Exception? Exception;
         public readonly bool IsSucess;
+        public readonly HttpStatusCode HttpStatusCode;
+        public readonly Exception? Exception;
 
-        public static implicit operator RabbitRequestResult<T>(T obj) => new(obj);
-        public static implicit operator RabbitRequestResult<T>(Exception ex) => new(ex);
+        public static implicit operator RabbitRequestResult<T>(HttpResponseMessage httpResponse) => new(httpResponse);
     }
 }
