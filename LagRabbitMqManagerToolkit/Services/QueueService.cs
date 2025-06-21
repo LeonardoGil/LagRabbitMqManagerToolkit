@@ -3,54 +3,76 @@ using LagRabbitMqManagerToolkit.Extensions;
 using LagRabbitMqManagerToolkit.Requests;
 using LagRabbitMqManagerToolkit.Services.Interfaces;
 
-namespace LagRabbitMqManagerToolkit.Services
+namespace LagRabbitMqManagerToolkit.Services;
+
+internal class QueueService(IRequestService requestService, RabbitSettings rabbitSettings) : IQueueService
 {
-    internal class QueueService(RabbitSettings _settings) : IQueueService
+    public async Task<RabbitRequestResult<Queue?>> GetAsync(string vHost, string queue)
     {
-        public async Task<Queue?> GetAsync(string vHost, string queue)
+        ArgumentException.ThrowIfNullOrEmpty(vHost);
+        ArgumentException.ThrowIfNullOrEmpty(queue);
+
+        var endpoint = RabbitEndpoints.Queue(vHost, queue);
+
+        var url = rabbitSettings.Url.CreateUri(endpoint);
+
+        return await requestService.GetAsync(rabbitSettings, url);
+    }
+    public async Task<RabbitRequestResult> PutAsync(string vHost, string queue, bool autoDelete = false, bool durable = true)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(vHost);
+        ArgumentException.ThrowIfNullOrEmpty(queue);
+
+        var endpoint = RabbitEndpoints.Queue(vHost, queue);
+
+        var url = rabbitSettings.Url.CreateUri(endpoint);
+
+        var body = new
         {
-            ArgumentException.ThrowIfNullOrEmpty(vHost);
-            ArgumentException.ThrowIfNullOrEmpty(queue);
+            auto_delete = autoDelete,
+            durable
+        };
 
-            var endpoint = RabbitEndpoints.GetQueue(vHost, queue);
+        return await requestService.PutAsync(rabbitSettings, url, body);
+    }
+    public async Task<RabbitRequestResult> DeleteAsync(string vHost, string queue, bool ifEmpty = true, bool ifUnused = true)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(vHost);
+        ArgumentException.ThrowIfNullOrEmpty(queue);
 
-            var url = new Uri(new Uri(_settings.Url), endpoint);
+        var endpoint = RabbitEndpoints.Queue(vHost, queue);
 
-            var token = RabbitRequestExtensions.BasicToken(_settings);
+        var url = rabbitSettings.Url.CreateUri(endpoint)
+                                    .AddQueyParams(new Dictionary<string, string>
+                                    { 
+                                        ["if-empty"] = ifEmpty.ToString(),
+                                        ["if-unused"] = ifUnused.ToString()
+                                    });
 
-            return await RabbitRequestExtensions.Get<Queue>(url, token);
-        }
+        return await requestService.DeleteAsync(rabbitSettings, url);
+    }
 
-        public async Task<IList<Message>> GetMessagesAsync(string vHost, string queue, int take = 200)
+    public async Task<RabbitRequestResult<IList<Message>>> GetMessagesAsync(string vHost, string queue, int take = 200)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(vHost);
+        ArgumentException.ThrowIfNullOrEmpty(queue);
+
+        var url = rabbitSettings.Url.CreateUri(RabbitEndpoints.QueueMessages(vHost, queue));
+
+        var body = new
         {
-            ArgumentException.ThrowIfNullOrEmpty(vHost);
-            ArgumentException.ThrowIfNullOrEmpty(queue);
+            ackmode = "ack_requeue_true",
+            encoding = "auto",
+            count = take
+        };
 
-            var endpoint = RabbitEndpoints.GetQueueMessages(vHost, queue);
+        return await requestService.PostAsync(rabbitSettings, url, body);
+    }
 
-            var url = new Uri(new Uri(_settings.Url), endpoint);
+    public async Task<RabbitRequestResult<IList<Queue>>> ListAsync()
+    {
+        var url = rabbitSettings.Url.CreateUri(RabbitEndpoints.Queues);
 
-            var body = new
-            {
-                ackmode = "ack_requeue_true",
-                encoding = "auto",
-                count = take
-            };
-
-            var token = RabbitRequestExtensions.BasicToken(_settings);
-
-            return await RabbitRequestExtensions.Post<IList<Message>>(url, token, body) ?? [];
-        }
-
-        public async Task<IList<Queue>> ListAsync()
-        {
-            var endpoint = RabbitEndpoints.Queues;
-
-            var url = new Uri(new Uri(_settings.Url), endpoint);
-
-            var token = RabbitRequestExtensions.BasicToken(_settings);
-
-            return await RabbitRequestExtensions.Get<List<Queue>>(url, token) ?? [];
-        }
+        return await requestService.GetAsync(rabbitSettings, url);
     }
 }

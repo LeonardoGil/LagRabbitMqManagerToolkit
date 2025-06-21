@@ -1,13 +1,15 @@
-﻿using LagRabbitMqManagerToolkit.Requests;
+﻿using LagRabbitMqManagerToolkit.Domains;
+using LagRabbitMqManagerToolkit.Requests;
 
-namespace LagRabbitMqManagerToolkit.Services.Interfaces
+namespace LagRabbitMqManagerToolkit.Services.Interfaces;
+
+public interface IQueueService
 {
-    public interface IQueueService
-    {
-        Task<IList<Queue>> ListAsync();
+    Task<RabbitRequestResult<Queue?>> GetAsync(string vHost, string queue);
+    Task<RabbitRequestResult> PutAsync(string vHost, string queue, bool autoDelete = false, bool durable = true);  
+    Task<RabbitRequestResult> DeleteAsync(string vHost, string queue, bool ifEmpty = true, bool ifUnused = true);
+ 
+    Task<RabbitRequestResult<IList<Queue>>> ListAsync();
 
-        Task<Queue?> GetAsync(string vHost, string queue);
-
-        Task<IList<Message>> GetMessagesAsync(string vHost, string queue, int take = 200);
-    }
+    Task<RabbitRequestResult<IList<Message>>> GetMessagesAsync(string vHost, string queue, int take = 200);
 }
